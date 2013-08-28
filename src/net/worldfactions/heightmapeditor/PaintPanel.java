@@ -29,12 +29,10 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 {
 	private int updateCount = 0;
 	private HeightmapSection section;
-	private Color color;
 	private HeightmapEditListener listener;
 	private Brush brush;
 	public PaintPanel()
 	{
-		brush = new HardBrush(20, 12, Color.black);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 	}
@@ -49,6 +47,11 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 		}
 	}
 	
+	public Brush getBrush()
+	{
+		return brush;
+	}
+	
 	public void setHeightmapEditListener(HeightmapEditListener l)
 	{
 		listener = l;
@@ -59,21 +62,14 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 		section = sect;
 	}
 	
-	public void setColor(Color c)
-	{
-		color = c;
-		brush.setColor(c);
-	}
-	
 	public void setBrush(Brush b)
 	{
-		b.setColor(brush.getColor());
 		brush = b;
 	}
 	
 	public void updateImage(MouseEvent e, boolean repaint)
 	{
-		if(section == null || section.image == null || color == null)
+		if(section == null || section.image == null)
 		{
 			return;
 		}

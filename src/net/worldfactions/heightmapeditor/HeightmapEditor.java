@@ -60,9 +60,13 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 	private JTextField redTextField;
 	private JTextField greenTextField;
 	private JTextField blueTextField;
-		
+	
 	private JLabel dimensionLabel;
 	private JLabel brushLabel;
+	private JLabel hardnessLabel;
+	private JLabel sizeLabel;
+	private JSlider hardnessSlider;
+	private JSlider sizeSlider;
 	private JPanel paintPanel;
 	private JComboBox brushSelectBox;
 	private JTabbedPane activeSegments;
@@ -90,6 +94,7 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		JButton addSegmentButton = new JButton("Add Section");
 		addSegmentButton.addMouseListener(new MouseAdapter()
 		{
+			@Override
 			public void mousePressed(MouseEvent ev)
 			{
 				String xStr = loadXBox.getText();
@@ -103,11 +108,12 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 					HeightmapSection section = heightmap.getSection(sections.size(), x, y);
 					sections.add(section);
 					
-					Color color = new Color(Integer.parseInt(redTextField.getText()), Integer.parseInt(greenTextField.getText()), Integer.parseInt(blueTextField.getText()));
 					PaintPanel pp = new PaintPanel();
 					pp.setSize(activeSegments.getSize());
 					pp.setSection(section);
-					pp.setColor(color);
+					
+					setPaintpanelSettings(pp);
+					
 					pp.setHeightmapEditListener(listener);
 					activeSegments.add(xStr.concat(":").concat(yStr), pp);
 					updateList = true;
@@ -120,10 +126,11 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		});
 		/** End Add button **/
 		
+		/** Brushes **/
 		HardBrush hardBrush = new HardBrush(4, 1, Color.black);
 		SoftBrush softBrush = new SoftBrush(4, 1, Color.black);
-		RisingBrush risingBrush = new RisingBrush(4, 1);
-		LoweringBrush loweringBrush = new LoweringBrush(4, 1);
+		RisingBrush risingBrush = new RisingBrush(4, 4);
+		LoweringBrush loweringBrush = new LoweringBrush(4, 4);
 		
 		JLabel brushLabelLabel = new JLabel("Brush:");
 		brushLabel = new JLabel(hardBrush.toString());
@@ -138,10 +145,45 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		{
 			public void itemStateChanged(ItemEvent e)
 			{
-				setActiveTabBrush();
+				setActiveTabBrushSettings();
 			}
 		});
-				
+		/** End Brushes **/
+		
+		/** Brush Options **/
+		JLabel hardnessLabelLabel = new JLabel("hardness:");
+		JLabel sizeLabelLabel = new JLabel("size:");
+		hardnessLabel = new JLabel();
+		sizeLabel = new JLabel();
+		hardnessSlider = new JSlider();
+		sizeSlider = new JSlider();
+		
+		hardnessSlider.addChangeListener(new ChangeListener()
+		{
+			public void stateChanged(ChangeEvent e)
+			{
+				hardnessLabel.setText(hardnessSlider.getValue() + "");
+				setActiveTabBrushSettings();
+			}
+		});
+		
+		sizeSlider.addChangeListener(new ChangeListener()
+		{
+			public void stateChanged(ChangeEvent e)
+			{
+				sizeLabel.setText(sizeSlider.getValue() + "");
+				setActiveTabBrushSettings();
+			}
+		});
+		
+		hardnessSlider.setMaximum(255);
+		hardnessSlider.setMinimum(1);
+		
+		sizeSlider.setMaximum(100);
+		sizeSlider.setMinimum(1);
+		
+		/** End Brush Options **/
+		
 		/** Paint color set **/
 		JLabel redLabel = new JLabel("R");
 		redTextField = new JTextField("1");
@@ -154,9 +196,10 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		
 		KeyAdapter colorChangeListener = new KeyAdapter()
 		{
+			@Override
 			public void keyReleased(KeyEvent e)
 			{
-				setActiveTabColor();
+				setActiveTabBrushSettings();
 			}
 		};
 				
@@ -169,7 +212,7 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-				setActiveTabColor();
+				setActiveTabBrushSettings();
 			}
 		});
 		/** End Paint color set **/
@@ -194,6 +237,27 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 					)
 				)
 				.addComponent(addSegmentButton)
+				.addGroup(
+					layout.createSequentialGroup()
+					.addGroup(
+						layout.createParallelGroup()
+						.addGroup(
+							layout.createSequentialGroup()
+							.addComponent(hardnessLabelLabel)
+							.addComponent(hardnessLabel)
+						)
+						.addComponent(hardnessSlider)
+					)
+					.addGroup(
+						layout.createParallelGroup()
+						.addGroup(
+							layout.createSequentialGroup()
+							.addComponent(sizeLabelLabel)
+							.addComponent(sizeLabel)
+						)
+						.addComponent(sizeSlider)
+					)
+				)
 				.addGroup(
 					layout.createSequentialGroup()
 					.addComponent(brushLabelLabel)
@@ -242,6 +306,18 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 					.addComponent(loadYBox)
 				)
 				.addComponent(addSegmentButton)
+				.addGroup(
+					layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+					.addComponent(hardnessLabelLabel)
+					.addComponent(hardnessLabel)
+					.addComponent(sizeLabelLabel)
+					.addComponent(sizeLabel)
+				)
+				.addGroup(
+					layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+					.addComponent(hardnessSlider)
+					.addComponent(sizeSlider)
+				)
 				.addGroup(
 					layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 					.addComponent(brushLabelLabel)
@@ -311,7 +387,6 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 			public void actionPerformed(ActionEvent e)
 			{
 				MenuItem item = (MenuItem)e.getSource();
-				System.out.println(item.getLabel());
 			}
 		});
 		
@@ -324,44 +399,44 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		return menu;
 	}
 	
-	public void setActiveTabBrush()
+	public void setActiveTabBrushSettings()
 	{
+		if(activeSegments == null)
+		{
+			return;
+		}
+		
+		PaintPanel pp = (PaintPanel)activeSegments.getSelectedComponent();
+		setPaintpanelSettings(pp);
+	}
+	
+	public void setPaintpanelSettings(PaintPanel pp)
+	{
+		if(pp == null)
+		{
+			return;
+		}
+		
 		try
 		{
 			Brush brush = (Brush)brushSelectBox.getSelectedItem();
+			
+			if(brush == null)
+			{
+				return;
+			}
+			
 			brushLabel.setText(brush.toString());
-			
-			PaintPanel pp = (PaintPanel)activeSegments.getSelectedComponent();
-			
-			if(pp == null)
-			{
-				return;
-			}
-			
-			pp.setBrush(brush);
-		}
-		catch(Exception ex)
-		{
-			System.out.println(ex.getMessage());
-		}
-	}
-	
-	public void setActiveTabColor()
-	{
-		try
-		{
-			PaintPanel pp = (PaintPanel)activeSegments.getSelectedComponent();
-			
-			if(pp == null)
-			{
-				return;
-			}
 			
 			float r = Float.parseFloat(redTextField.getText())/255.0f;
 			float g = Float.parseFloat(greenTextField.getText())/255.0f;
 			float b = Float.parseFloat(blueTextField.getText())/255.0f;
 			
-			pp.setColor(new Color(r, g, b));
+			brush.setColor(new Color(r, g, b));
+			brush.setHardness(hardnessSlider.getValue());
+			brush.setSize(sizeSlider.getValue());
+			
+			pp.setBrush(brush);
 		}
 		catch(Exception ex)
 		{
