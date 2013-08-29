@@ -34,7 +34,7 @@ import javax.media.opengl.glu.GLU;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class HeightmapEditor implements GLEventListener, HeightmapEditListener, MouseListener, MouseMotionListener, KeyListener
+public class HeightmapEditor implements GLEventListener, HeightmapEditListener, MouseListener, MouseMotionListener, KeyListener, ActionListener
 {
 	private int WINDOW_WIDTH = 1024;
 	private int WINDOW_HEIGHT = 768;
@@ -45,7 +45,7 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 	private FPSAnimator animator;
 	private float view_rotx = 20.0f, view_roty = 30.0f, view_rotz = 0.0f;
 	private float location_x = 0.0f, location_y = 0.0f, location_z = 0.0f;
-	private int drawList, gear1, gear2;
+	private int drawList;
 	private float angle = 0.0f;
 	private float keyMovement = 4.0f;
 	
@@ -56,6 +56,10 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 	private ArrayList<HeightmapSection> sections = new ArrayList<HeightmapSection>();
 	private Heightmap heightmap;
 	private String heightmapFile;
+	
+	private MenuItem newMenuItem = new MenuItem("New");
+	private MenuItem openMenuItem = new MenuItem("Open");
+	private MenuItem saveMenuItem = new MenuItem("Save");
 	
 	private JTextField loadXBox;
 	private JTextField loadYBox;
@@ -70,15 +74,12 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 	private JLabel sizeLabel;
 	private JSlider hardnessSlider;
 	private JSlider sizeSlider;
-	private JPanel paintPanel;
 	private JComboBox brushSelectBox;
 	private JTabbedPane activeSegments;
-	public HeightmapEditor(String file)
+	
+	public HeightmapEditor()
 	{
-		heightmap = new Heightmap(file);
-		heightmapFile = file;
-		
-		JFrame frame = new JFrame("Heightmap editor");
+		JFrame frame = new JFrame("Heightmap Editor");
 		GLCanvas canvas = new GLCanvas();
 		animator = new FPSAnimator(canvas, 30);
 		GroupLayout layout = new GroupLayout(frame.getContentPane());
@@ -383,38 +384,25 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		MenuBar menu = new MenuBar();
 		Menu fileMenu = new Menu("File");
 		
-		final MenuItem open = new MenuItem("Open");
-		final MenuItem reset = new MenuItem("Reset");
-		final MenuItem save = new MenuItem("Save");
+		newMenuItem.addActionListener(this);
+		saveMenuItem.addActionListener(this);
+		openMenuItem.addActionListener(this);
 		
-		save.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				for(int i = 0; i < sections.size(); i++)
-				{
-					heightmap.applySection(sections.get(i));
-				}
-				
-				String imageType = heightmapFile.substring(heightmapFile.lastIndexOf(".") + 1);
-				try
-				{
-					ImageIO.write(heightmap.image, imageType, new File(heightmapFile));
-				}
-				catch(Exception ex)
-				{
-					JOptionPane.showMessageDialog(null, "Error saving image. Reason: ".concat(ex.getMessage()));
-				}
-			}
-		});
-		
-		fileMenu.add(open);
-		fileMenu.add(reset);
-		fileMenu.add(save);
+		fileMenu.add(newMenuItem);
+		fileMenu.add(openMenuItem);
+		fileMenu.add(saveMenuItem);
 		
 		menu.add(fileMenu);
 		
 		return menu;
+	}
+	
+	public void loadHeightmap(String file)
+	{
+		heightmap = new Heightmap(file);
+		heightmapFile = file;
+		sections.removeAll(sections);
+		activeSegments.removeAll();
 	}
 	
 	public void setActiveTabBrushSettings()
@@ -691,14 +679,63 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		sections.set(section.index, section);
 		updateList = true;
 	}
+	
+	public void actionPerformed(ActionEvent e)
+	{
+		if(e.getSource().getClass().isInstance(MenuItem.class.getClass()))
+		{
+			MenuItem item = (MenuItem)e.getSource();
+			if(item == openMenuItem)
+			{
+				menuOpenSelected();
+			}
+			else if(item == saveMenuItem)
+			{
+				menuSaveSelected();
+			}
+		}
+	}
+	
+	public void menuNewSelected()
+	{
 		
-	public static void main(String[] args)
+	}
+	
+	public void menuOpenSelected()
 	{
 		JFileChooser fileChoser = new JFileChooser();
 		
 		if(fileChoser.showDialog(null, "Select a heightmap") == JFileChooser.APPROVE_OPTION)
 		{
-			new HeightmapEditor(fileChoser.getSelectedFile().getAbsolutePath());
+			loadHeightmap(fileChoser.getSelectedFile().getAbsolutePath());
+		}
+	}
+	
+	public void menuSaveSelected()
+	{
+		for(int i = 0; i < sections.size(); i++)
+		{
+			heightmap.applySection(sections.get(i));
+		}
+				
+		String imageType = heightmapFile.substring(heightmapFile.lastIndexOf(".") + 1);
+		try
+		{
+			ImageIO.write(heightmap.image, imageType, new File(heightmapFile));
+		}
+		catch(Exception ex)
+		{
+			JOptionPane.showMessageDialog(null, "Error saving image. Reason: ".concat(ex.getMessage()));
+		}
+	}
+	
+	public static void main(String[] args)
+	{
+		JFileChooser fileChoser = new JFileChooser();
+		if(fileChoser.showDialog(null, "Select a heightmap") == JFileChooser.APPROVE_OPTION)
+		{
+			HeightmapEditor editor = new HeightmapEditor();
+			editor.loadHeightmap(fileChoser.getSelectedFile().getAbsolutePath());
 		}
 		else
 		{
