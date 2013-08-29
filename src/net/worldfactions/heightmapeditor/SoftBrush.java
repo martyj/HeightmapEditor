@@ -15,7 +15,6 @@ package net.worldfactions.heightmapeditor;
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 * 
-* Version 0.1
 * Created by WorldFactions.net
 * For feature implementation suggestions please visit https://www.facebook.com/WorldFactions
 **/
@@ -44,7 +43,7 @@ public class SoftBrush extends Brush
 		int y1 = WFMath.clamp(y - half_size, 0, im.getHeight());
 		int y2 = WFMath.clamp(y + half_size, 0, im.getHeight());
 		
-		int rgb = getColor().getRGB();
+		Color desiredColor = getColor();
 		
 		// Brute force way of circle.
 		for(int i = x1; i <= x2; i++)
@@ -54,7 +53,18 @@ public class SoftBrush extends Brush
 				double distance = WFMath.distance(i, j, x, y);
 				if(distance <= half_size)
 				{
-					im.setRGB(i, j, rgb);
+					double angle = Math.atan2((float)half_size - y, (float)half_size - x);
+					int newx = WFMath.clamp((int)(half_size/Math.cos(angle)), 0, im.getWidth());
+					int newy = WFMath.clamp((int)(half_size/Math.sin(angle)), 0, im.getHeight());
+					Color edgecolor = new Color(im.getRGB(newx, newy));
+					
+					double newPercent = distance/half_size;
+					double oldPercent = 1 - newPercent;
+					
+					int r = (int)WFMath.clamp(desiredColor.getRed() * oldPercent + edgecolor.getRed() * newPercent, 0, 255);
+					int g = (int)WFMath.clamp(desiredColor.getGreen() * oldPercent + edgecolor.getGreen() * newPercent, 0, 255);
+					int b = (int)WFMath.clamp(desiredColor.getBlue() * oldPercent + edgecolor.getBlue() * newPercent, 0, 255);
+					im.setRGB(i, j, new Color(r, g, b).getRGB());
 				}
 			}
 		}

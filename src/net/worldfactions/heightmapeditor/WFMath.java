@@ -15,7 +15,6 @@ package net.worldfactions.heightmapeditor;
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 * 
-* Version 0.1
 * Created by WorldFactions.net
 * For feature implementation suggestions please visit https://www.facebook.com/WorldFactions
 **/
@@ -35,6 +34,36 @@ public class WFMath
 		}
 		
 		return val;
+	}
+	
+	public static float clamp(float val, float min, float max)
+	{
+		if(val < min)
+		{
+			return min;
+		}
+		
+		if(val > max)
+		{
+			return max;
+		}
+		
+		return val;
+	}
+	
+	public static double clamp(double val, double min, double max)
+	{
+		if(val < min)
+		{
+			return min;
+		}
+		
+		if(val > max)
+		{
+			return max;
+		}
+		
+		return val;				
 	}
 	
 	public static double distance(int x1, int y1, int x2, int y2)

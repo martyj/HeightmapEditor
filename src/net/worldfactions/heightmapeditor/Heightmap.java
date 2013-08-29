@@ -15,11 +15,11 @@ package net.worldfactions.heightmapeditor;
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 * 
-* Version 0.1
 * Created by WorldFactions.net
 * For feature implementation suggestions please visit https://www.facebook.com/WorldFactions
 **/
 
+import java.awt.Graphics;
 import java.io.*;
 import javax.imageio.ImageIO;
 import java.awt.image.*;
@@ -30,7 +30,6 @@ public class Heightmap
     public static final float SECTION_ITEM_WIDTH = 8;
     public static final float SECTION_ITEM_DIVISOR = 212;
     public BufferedImage image;
-	
     public Heightmap(String filename)
     {
         try
@@ -65,4 +64,10 @@ public class Heightmap
     {
         return new HeightmapSection(index, x, y, image.getSubimage(x * SECTION_WIDTH, y * SECTION_HEIGHT, SECTION_WIDTH, SECTION_HEIGHT), SECTION_ITEM_WIDTH, SECTION_ITEM_DIVISOR);
     }
+	
+	public void applySection(HeightmapSection section)
+	{
+		Graphics g = image.getGraphics();
+		g.drawImage(section.image, section.x * SECTION_WIDTH, section.y * SECTION_HEIGHT, SECTION_WIDTH, SECTION_HEIGHT, null);
+	}
 }

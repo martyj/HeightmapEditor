@@ -27,6 +27,8 @@ import java.awt.MenuItem;
 import java.util.ArrayList;
 import com.sun.opengl.util.*;
 import java.awt.Color;
+import java.io.File;
+import javax.imageio.ImageIO;
 import javax.media.opengl.*;
 import javax.media.opengl.glu.GLU;
 import javax.swing.event.ChangeEvent;
@@ -53,6 +55,7 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 	
 	private ArrayList<HeightmapSection> sections = new ArrayList<HeightmapSection>();
 	private Heightmap heightmap;
+	private String heightmapFile;
 	
 	private JTextField loadXBox;
 	private JTextField loadYBox;
@@ -73,6 +76,7 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 	public HeightmapEditor(String file)
 	{
 		heightmap = new Heightmap(file);
+		heightmapFile = file;
 		
 		JFrame frame = new JFrame("Heightmap editor");
 		GLCanvas canvas = new GLCanvas();
@@ -219,6 +223,7 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 			.addComponent(canvas)
+			.addGap(5)
 			.addGroup(
 				layout.createParallelGroup()
 				.addGroup(
@@ -378,15 +383,28 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		MenuBar menu = new MenuBar();
 		Menu fileMenu = new Menu("File");
 		
-		MenuItem open = new MenuItem("Open");
-		MenuItem reset = new MenuItem("Reset");
-		MenuItem save = new MenuItem("Save");
+		final MenuItem open = new MenuItem("Open");
+		final MenuItem reset = new MenuItem("Reset");
+		final MenuItem save = new MenuItem("Save");
 		
-		open.addActionListener(new ActionListener()
+		save.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				MenuItem item = (MenuItem)e.getSource();
+				for(int i = 0; i < sections.size(); i++)
+				{
+					heightmap.applySection(sections.get(i));
+				}
+				
+				String imageType = heightmapFile.substring(heightmapFile.lastIndexOf(".") + 1);
+				try
+				{
+					ImageIO.write(heightmap.image, imageType, new File(heightmapFile));
+				}
+				catch(Exception ex)
+				{
+					JOptionPane.showMessageDialog(null, "Error saving image. Reason: ".concat(ex.getMessage()));
+				}
 			}
 		});
 		
