@@ -85,7 +85,7 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		GroupLayout layout = new GroupLayout(frame.getContentPane());
 		
 		JLabel dimensionLabelLabel = new JLabel("Size:");
-		dimensionLabel = new JLabel(heightmap.getXSections() + "x" + heightmap.getYSections());
+		dimensionLabel = new JLabel();
 		
 		/** Add button **/
 		JLabel loadXLabel = new JLabel("X:");
@@ -186,7 +186,6 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		
 		sizeSlider.setMaximum(100);
 		sizeSlider.setMinimum(1);
-		
 		/** End Brush Options **/
 		
 		/** Paint color set **/
@@ -403,6 +402,7 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		heightmapFile = file;
 		sections.removeAll(sections);
 		activeSegments.removeAll();
+		dimensionLabel.setText(heightmap.getXSections() + "x" + heightmap.getYSections());
 	}
 	
 	public void setActiveTabBrushSettings()

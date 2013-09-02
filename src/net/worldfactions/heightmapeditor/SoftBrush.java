@@ -36,15 +36,16 @@ public class SoftBrush extends Brush
 			return im;
 		}
 		
-		int half_size = getSize()/2;
+		int half_size = (int)Math.ceil(getSize()/2);
 		
-		int x1 = WFMath.clamp(x - half_size, 0, im.getWidth());
-		int x2 = WFMath.clamp(x + half_size, 0, im.getWidth());
-		int y1 = WFMath.clamp(y - half_size, 0, im.getHeight());
-		int y2 = WFMath.clamp(y + half_size, 0, im.getHeight());
+		int x1 = WFMath.clamp(x - half_size, 0, im.getWidth() - 1);
+		int x2 = WFMath.clamp(x + half_size, 0, im.getWidth() - 1);
+		int y1 = WFMath.clamp(y - half_size, 0, im.getHeight() - 1);
+		int y2 = WFMath.clamp(y + half_size, 0, im.getHeight() - 1);
 		
 		Color desiredColor = getColor();
 		
+		System.out.printf("x1: " + x1 + "\tx2:" + x2 + "\ty1:" + y1 + "\ty2:" + y2);
 		// Brute force way of circle.
 		for(int i = x1; i <= x2; i++)
 		{
@@ -53,17 +54,26 @@ public class SoftBrush extends Brush
 				double distance = WFMath.distance(i, j, x, y);
 				if(distance <= half_size)
 				{
-					double angle = Math.atan2((float)half_size - y, (float)half_size - x);
-					int newx = WFMath.clamp((int)(half_size/Math.cos(angle)), 0, im.getWidth());
-					int newy = WFMath.clamp((int)(half_size/Math.sin(angle)), 0, im.getHeight());
-					Color edgecolor = new Color(im.getRGB(newx, newy));
+					float newTanX = ((float)x - i)/half_size;
+					float newTanY = ((float)y - j)/half_size;
+					double angle = Math.atan2(newTanY, newTanX);
+										
+					double newcos = Math.cos(angle);
+					double newsin = Math.sin(angle);
+					System.out.println("origX: " + x + "\torigY:" + y + "\tx: " + newTanX + "\ty: " + newTanY + "\tnx:" + ((float)newcos) + "\tny:" + ((float)newsin) + "\tangle:" + (angle * 57.2957795));
 					
+					int plus_one_size = half_size + 1;
+					int newx = (int)WFMath.clamp(x + (plus_one_size*Math.cos(angle)), 0, im.getWidth() - 1);
+					int newy = (int)WFMath.clamp(y + (plus_one_size*Math.sin(angle)), 0, im.getHeight() - 1);
+					
+					Color edgecolor = new Color(im.getRGB(newx, newy));
 					double newPercent = distance/half_size;
 					double oldPercent = 1 - newPercent;
 					
 					int r = (int)WFMath.clamp(desiredColor.getRed() * oldPercent + edgecolor.getRed() * newPercent, 0, 255);
 					int g = (int)WFMath.clamp(desiredColor.getGreen() * oldPercent + edgecolor.getGreen() * newPercent, 0, 255);
 					int b = (int)WFMath.clamp(desiredColor.getBlue() * oldPercent + edgecolor.getBlue() * newPercent, 0, 255);
+					
 					im.setRGB(i, j, new Color(r, g, b).getRGB());
 				}
 			}
