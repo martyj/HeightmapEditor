@@ -45,7 +45,6 @@ public class SoftBrush extends Brush
 		
 		Color desiredColor = getColor();
 		
-		System.out.printf("x1: " + x1 + "\tx2:" + x2 + "\ty1:" + y1 + "\ty2:" + y2);
 		// Brute force way of circle.
 		for(int i = x1; i <= x2; i++)
 		{
@@ -57,10 +56,6 @@ public class SoftBrush extends Brush
 					float newTanX = ((float)x - i)/half_size;
 					float newTanY = ((float)y - j)/half_size;
 					double angle = Math.atan2(newTanY, newTanX);
-										
-					double newcos = Math.cos(angle);
-					double newsin = Math.sin(angle);
-					System.out.println("origX: " + x + "\torigY:" + y + "\tx: " + newTanX + "\ty: " + newTanY + "\tnx:" + ((float)newcos) + "\tny:" + ((float)newsin) + "\tangle:" + (angle * 57.2957795));
 					
 					int plus_one_size = half_size + 1;
 					int newx = (int)WFMath.clamp(x + (plus_one_size*Math.cos(angle)), 0, im.getWidth() - 1);

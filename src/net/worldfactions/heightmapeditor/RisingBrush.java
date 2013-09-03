@@ -37,12 +37,13 @@ public class RisingBrush extends Brush
 		}
 		
 		int half_size = getSize()/2;
+		int hardness = getHardness();
 		
 		int x1 = WFMath.clamp(x - half_size, 0, im.getWidth() - 1);
 		int x2 = WFMath.clamp(x + half_size, 0, im.getWidth() - 1);
 		int y1 = WFMath.clamp(y - half_size, 0, im.getHeight() - 1);
 		int y2 = WFMath.clamp(y + half_size, 0, im.getHeight() - 1);
-				
+		
 		// Brute force way of circle.
 		for(int i = x1; i <= x2; i++)
 		{
@@ -52,9 +53,9 @@ public class RisingBrush extends Brush
 				{
 					Color c = new Color(im.getRGB(i, j));
 					
-					int r = WFMath.clamp(c.getRed() + getHardness(), 0, 255);
-					int g = WFMath.clamp(c.getGreen() + getHardness(), 0, 255);
-					int b = WFMath.clamp(c.getBlue() + getHardness(), 0, 255);
+					int r = (int)WFMath.clamp(c.getRed() + hardness, 0, 255);
+					int g = (int)WFMath.clamp(c.getGreen() + hardness, 0, 255);
+					int b = (int)WFMath.clamp(c.getBlue() + hardness, 0, 255);
 					
 					Color newc = new Color(r, g, b);
 					im.setRGB(i, j, newc.getRGB());

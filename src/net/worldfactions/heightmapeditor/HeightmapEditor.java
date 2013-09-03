@@ -182,7 +182,7 @@ public class HeightmapEditor implements GLEventListener, HeightmapEditListener, 
 		});
 		
 		hardnessSlider.setMaximum(255);
-		hardnessSlider.setMinimum(1);
+		hardnessSlider.setMinimum(0);
 		
 		sizeSlider.setMaximum(100);
 		sizeSlider.setMinimum(1);
