@@ -30,6 +30,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 	private HeightmapSection section;
 	private HeightmapEditListener listener;
 	private Brush brush;
+	private Point mouse;
 	public PaintPanel()
 	{
 		this.addMouseListener(this);
@@ -43,6 +44,14 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 		if(section != null && section.image != null)
 		{
 			g.drawImage(section.image, 0, 0, this.getWidth(), this.getHeight(), 0, 0, section.image.getWidth(), section.image.getHeight(), this);
+		}
+		
+		if(mouse != null)
+		{
+			int size = brush.getSize();
+			int half_size = (int)Math.ceil(size/2.0f);
+			g.setColor(Color.red);
+			g.drawOval(mouse.x - half_size, mouse.y - half_size, brush.getSize(), brush.getSize());
 		}
 	}
 	
@@ -84,7 +93,6 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 		}
 		
 		section.image = brush.applyBrushToImage(section.image, x, y);
-		//section.setPixel(x, y, color.getRGB());
 		section.updateData();
 		if(repaint)
 		{
@@ -115,12 +123,14 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
 	public void mouseEntered(MouseEvent e)
 	{
-		
+		mouse = new Point(e.getX(), e.getY());
+		repaint();
 	}
 
 	public void mouseExited(MouseEvent e)
 	{
-		
+		mouse = null;
+		repaint();
 	}
 
 	public void mouseDragged(MouseEvent e)
@@ -131,6 +141,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
 	public void mouseMoved(MouseEvent e)
 	{
-		
+		mouse = new Point(e.getX(), e.getY());
+		repaint();
 	}
 }

@@ -56,8 +56,9 @@ public class LoweringBrush extends Brush
 					int r = (int)WFMath.clamp(c.getRed() - hardness, 0, 255);
 					int g = (int)WFMath.clamp(c.getGreen() - hardness, 0, 255);
 					int b = (int)WFMath.clamp(c.getBlue() - hardness, 0, 255);
-					
 					Color newc = new Color(r, g, b);
+					
+					System.out.println("old: {" + c.getRGB() + "} \t new: {" + newc.getRGB() + "}");
 					im.setRGB(i, j, newc.getRGB());
 				}
 			}
@@ -65,4 +66,9 @@ public class LoweringBrush extends Brush
 		
 		return im;
 	}
+	
+public String colorToString(Color c)
+{
+	return "r:" + c.getRed() + "\tg:" + c.getGreen() + "\tb:" + c.getBlue();
+}
 }
